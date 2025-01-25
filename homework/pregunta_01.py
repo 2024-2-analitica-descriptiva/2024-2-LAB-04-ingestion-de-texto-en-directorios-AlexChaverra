@@ -5,6 +5,10 @@
 Escriba el codigo que ejecute la accion solicitada en cada pregunta.
 """
 
+import zipfile
+import os
+import pandas as pd
+
 
 def pregunta_01():
     """
@@ -71,3 +75,49 @@ def pregunta_01():
 
 
     """
+
+    zip_path = "files/input.zip"
+    extract_to = "."
+    input_dir = "input"
+    output_dir = "files/output"
+
+    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        zip_ref.extractall(extract_to)
+
+    os.makedirs(output_dir, exist_ok=True)
+
+    input_dir
+
+    def generate_dataset(data_type):
+
+        data = []
+        base_path = os.path.join(input_dir, data_type)
+        
+        
+        for sentiment in ["negative", "neutral", "positive"]:
+            sentiment_path = os.path.join(base_path, sentiment)
+            
+            if not os.path.exists(sentiment_path):
+                continue
+            
+            for file_name in os.listdir(sentiment_path):
+                if file_name.endswith(".txt"):
+                    file_path = os.path.join(sentiment_path, file_name)
+                    try:
+                        with open(file_path, 'r', encoding='utf-8') as file:
+                            phrase = file.read().strip()
+                            data.append({"phrase": phrase, "target": sentiment})
+                    except Exception:
+                        pass
+        
+        df = pd.DataFrame(data)
+        output_file = os.path.join(output_dir, f"{data_type}_dataset.csv")
+        df.to_csv(output_file, index=False)
+        print(f"Archivo {output_file} generado exitosamente.")
+
+    # Generar los archivos para train y test
+    generate_dataset("train")
+    generate_dataset("test")
+
+pregunta_01()
+
